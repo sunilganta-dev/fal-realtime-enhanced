@@ -6,6 +6,7 @@ import * as fal from "@fal-ai/serverless-client";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { ModelIcon } from "@/components/icons/model-icon";
+import PerformanceSelect from "@/components/ui/performance-select";
 import Link from "next/link";
 
 const DISABLED = false;
@@ -73,6 +74,8 @@ export default function Lightning() {
   const [prompt, setPrompt] = useState<string>(DEFAULT_PROMPT);
   const [seed, setSeed] = useState<string>(randomSeed());
   const [inferenceTime, setInferenceTime] = useState<number>(NaN);
+  const [mode, setMode] = useState("balanced");
+
 
   const connection = fal.realtime.connect("fal-ai/flux-schnell-realtime", {
     connectionKey: "flux-schnell-realtime",
@@ -96,6 +99,18 @@ export default function Lightning() {
       prompt: prompt,
       seed: seed ? Number(seed) : Number(randomSeed()),
     };
+    // Apply performance mode
+    if (mode === "fast") {
+      input.num_inference_steps = "1";
+      input.image_size = { width: 512, height: 512 };
+    } else if (mode === "balanced") {
+      input.num_inference_steps = "2";
+      input.image_size = { width: 768, height: 768 };
+    } else if (mode === "hq") {
+      input.num_inference_steps = "4";
+      input.image_size = { width: 1024, height: 1024 };
+    }
+
     connection.send(input);
     timer.current = setTimeout(() => {
       connection.send({ ...input, num_inference_steps: "4" });
@@ -125,6 +140,7 @@ export default function Lightning() {
             <div className="py-4 md:py-10 px-0 space-y-4 lg:space-y-8 mx-auto w-full max-w-xl">
               <div className="container px-3 md:px-0 flex flex-col space-y-2">
                 <div className="flex flex-col max-md:space-y-4 md:flex-row md:space-x-4 max-w-full">
+
                   <div className="flex-1 space-y-1">
                     <label>Prompt</label>
                     <Input
@@ -136,6 +152,7 @@ export default function Lightning() {
                       value={prompt}
                     />
                   </div>
+
                   <div className="space-y-1">
                     <label>Seed</label>
                     <Input
@@ -149,7 +166,14 @@ export default function Lightning() {
                       value={seed}
                     />
                   </div>
+
+                  {/* NEW PERFORMANCE MODE SELECTOR */}
+                  <div className="space-y-1">
+                    <PerformanceSelect value={mode} onChange={setMode} />
+                  </div>
+
                 </div>
+
               </div>
               <div className="container flex flex-col space-y-6 lg:flex-row lg:space-y-0 p-3 md:p-0">
                 <div className="flex-1 flex-col flex items-center justify-center">
