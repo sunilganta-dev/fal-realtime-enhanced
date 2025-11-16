@@ -1,28 +1,20 @@
 "use client";
 
-import { useState } from "react";
+interface PerfProps {
+  value: string;
+  onChange: (v: string) => void;
+}
 
-const modes = [
-  { label: "Fast", value: "fast" },
-  { label: "Balanced", value: "balanced" },
-  { label: "High Quality", value: "hq" },
-];
-
-export default function PerformanceSelect({ value, onChange }: any) {
+export default function PerformanceSelect({ value, onChange }: PerfProps) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-sm text-gray-300">Performance Mode</label>
-      <select
-        className="bg-black border border-gray-700 rounded px-3 py-2 text-sm"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {modes.map((mode) => (
-          <option key={mode.value} value={mode.value}>
-            {mode.label}
-          </option>
-        ))}
-      </select>
-    </div>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="border rounded-md p-2 bg-black text-white"
+    >
+      <option value="balanced">Balanced</option>
+      <option value="fast">Fast</option>
+      <option value="hq">High Quality</option>
+    </select>
   );
 }
